@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taiwan Education and Demographics Dashboard</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600;700;900&display=swap");
+      @import url("https://use.typekit.net/ktn0ura.css");
+      :root {
+        --container-padding: 20px;
+        --container-gap: 20px;
+        --title-margin-bottom: 15px;
+        --chart-width: 500px;
+        --chart-height: 250px;
+        --map-width: var(--chart-width);
+        --map-height: 600px;
+        --font-size: 16px;
+        --chart-conteiner-width: calc(
+          var(--chart-width) + 2 * var(--container-padding)
+        );
+        --county-stroke-width: 1px;
+        --line-chart-width: 500px;
+        --line-chart-height: 510px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background-color: #f0f2f5;
+        padding-top: 20px;
+      }
+
+      .dashboard-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #2c3e50;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--container-gap);
+        justify-items: center;
+        margin: 0 auto;
+        padding: var(--container-padding);
+        max-width: calc(
+          2 * var(--chart-conteiner-width) + 2 * var(--container-gap) +
+            var(--container-gap)
+        );
+      }
+
+      .chart-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(12, 11, 11, 0.1);
+        padding: var(--container-padding);
+        width: var(--chart-conteiner-width);
+      }
+
+      .map-container {
+        height: calc(
+          var(--map-height) + 2 * var(--container-padding) + var(--font-size) +
+            var(--title-margin-bottom)
+        );
+      }
+
+      .education-distribution {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .chart-title {
+        font-size: var(--font-size);
+        font-weight: 600;
+        margin-bottom: var(--title-margin-bottom);
+        color: #34495e;
+        text-align: center;
+      }
+
+      .map-content {
+        width: var(--map-width);
+        height: var(--map-height);
+      }
+
+      .chart-content {
+        width: var(--chart-width);
+        height: var(--chart-height);
+      }
+
+      .line-chart-content {
+        width: var(--line-chart-width);
+        height: var(--line-chart-height);
+      }
+
+      .county {
+        stroke: gray;
+        stroke-width: var(--county-stroke-width);
+      }
+      .dot-selected-male {
+        stroke: orange;
+        stroke-width: 2;
+        /* r: 8; */
+        opacity: 1 !important;
+        fill: blue;
+      }
+      .dot-selected-female {
+        stroke: orange;
+        stroke-width: 2;
+        /* r: 8; */
+        opacity: 1 !important;
+        fill: red;
+      }
+      .custom_tooltip {
+        position: absolute;
+        text-align: left;
+        width: max-content;
+        padding: 10px;
+        font: 10px;
+        background: #f0eeeb;
+        color: dimgray;
+        border: 1px solid dimgray;
+        border-radius: 3px;
+        pointer-events: none;
+      }
+      @media (max-width: 1200px) {
+        .dashboard-container {
+          grid-template-columns: 1fr;
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="dashboard-title">
+      Education Level and Marital Status in Taiwan (2023)
+    </h1>
+
+    <div class="dashboard-container">
+      <div class="chart-container map-container">
+        <div class="chart-title">Women's Median salary in Taiwan</div>
+        <svg id="taiwan-map" class="map-content"></svg>
+      </div>
+
+      <div class="chart-container education-distribution">
+        <div>
+          <div class="chart-title">Education Level Distribution</div>
+          <svg id="education-bar-chart" class="chart-content"></svg>
+        </div>
+        <div>
+          <div class="chart-title">
+            Regional Singles Rate: Master's or above
+          </div>
+          <svg id="singles-scatter" class="chart-content"></svg>
+        </div>
+      </div>
+
+      <div class="chart-container women-education-age">
+        <div class="chart-title">
+          Women's Singles Rate Distribution by Education and Age
+        </div>
+        <svg id="women-edu-single-line-chart" class="line-chart-content"></svg>
+      </div>
+
+      <div class="chart-container singles-distribution">
+        <div class="chart-title">
+          Singles Rate Distribution by Gender and Age
+        </div>
+        <svg id="gender-age-single-chart" class="line-chart-content"></svg>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
+    <script src="config.js"></script>
+    <script src="util.js"></script>
+    <script src="d3-tip.js"></script>
+    <script src="education-bar-chart.js"></script>
+    <script src="single-edu-scatterplot-chart.js"></script>
+    <script src="age-single-edu-line-chart.js"></script>
+    <script src="map.js"></script>
+  </body>
+</html>
