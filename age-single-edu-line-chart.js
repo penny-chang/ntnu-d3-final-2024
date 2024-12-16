@@ -137,9 +137,6 @@ d3.csv("./data/marital-edu-age-population.csv")
         boySingleRate: masterSingleBoy[i] / masterSumBoy[i],
       });
     }
-    console.log("data1:", highSchoolSingleRate);
-    console.log("data2:", bachelorSingleRate);
-    console.log("data3:", masterSingleRate);
 
     lineChartG
       .append("text")
