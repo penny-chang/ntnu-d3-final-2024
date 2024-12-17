@@ -172,47 +172,77 @@ d3.csv("./data/marital-edu-age-population.csv")
     lineChartG
       .append("g")
       .call(d3.axisLeft(lineChartYScale).tickFormat((d) => d * 100 + "%"));
-    lineChartG
+
+    const masterLegendGroup = lineChartG
+      .append("g")
+      .attr("class", "legend-item")
+      .style("cursor", "pointer")
+      .on("click", () => {
+        // Trigger the same action as clicking the master line
+        master.dispatch("click");
+      });
+
+    masterLegendGroup
       .append("rect")
       .attr("x", (lineChartWidth / 3) * 2)
       .attr("y", lineChartHeight / 150)
       .attr("width", 30)
       .attr("height", 5)
       .attr("fill", "brown");
-    lineChartG
+
+    masterLegendGroup
       .append("text")
       .attr("x", (lineChartWidth / 3) * 2 + 35)
       .attr("y", lineChartHeight / 150 + 6)
       .attr("font-size", "12px")
       .text("Master's or Above");
 
-    lineChartG
+    const bachelorLegendGroup = lineChartG
+      .append("g")
+      .attr("class", "legend-item")
+      .style("cursor", "pointer")
+      .on("click", () => {
+        bachelor.dispatch("click");
+      });
+
+    bachelorLegendGroup
       .append("rect")
       .attr("x", (lineChartWidth / 3) * 2)
       .attr("y", lineChartHeight / 150 + 15)
       .attr("width", 30)
       .attr("height", 5)
       .attr("fill", "green");
-    lineChartG
+
+    bachelorLegendGroup
       .append("text")
       .attr("x", (lineChartWidth / 3) * 2 + 35)
       .attr("y", lineChartHeight / 150 + 6 + 15)
       .attr("font-size", "12px")
       .text("Colleges");
 
-    lineChartG
+    const highSchoolLegendGroup = lineChartG
+      .append("g")
+      .attr("class", "legend-item")
+      .style("cursor", "pointer")
+      .on("click", () => {
+        highSchool.dispatch("click");
+      });
+
+    highSchoolLegendGroup
       .append("rect")
       .attr("x", (lineChartWidth / 3) * 2)
       .attr("y", lineChartHeight / 150 + 30)
       .attr("width", 30)
       .attr("height", 5)
       .attr("fill", "steelblue");
-    lineChartG
+
+    highSchoolLegendGroup
       .append("text")
       .attr("x", (lineChartWidth / 3) * 2 + 35)
       .attr("y", lineChartHeight / 150 + 6 + 30)
       .attr("font-size", "12px")
       .text("High School or Below");
+
     var lineGenerator = d3
       .line()
       .x((d) => lineChartXScale(d.age))
@@ -223,6 +253,7 @@ d3.csv("./data/marital-edu-age-population.csv")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2)
+      .style("cursor", "pointer")
       .attr("d", lineGenerator(highSchoolSingleRate));
 
     var bachelor = lineChartG
@@ -230,6 +261,7 @@ d3.csv("./data/marital-edu-age-population.csv")
       .attr("fill", "none")
       .attr("stroke", "green")
       .attr("stroke-width", 2)
+      .style("cursor", "pointer")
       .attr("d", lineGenerator(bachelorSingleRate));
 
     var master = lineChartG
@@ -237,6 +269,7 @@ d3.csv("./data/marital-edu-age-population.csv")
       .attr("fill", "none")
       .attr("stroke", "brown")
       .attr("stroke-width", 2)
+      .style("cursor", "pointer")
       .attr("d", lineGenerator(masterSingleRate));
     var lineGeneratorGirl = d3
       .line()
@@ -247,68 +280,141 @@ d3.csv("./data/marital-edu-age-population.csv")
       .x((d) => lineChartXScale(d.age))
       .y((d) => lineChartYScale(d.boySingleRate));
 
+    const subtitleGroup = genderLineChartG
+      .append("g")
+      .attr("class", "subtitle");
+
+    subtitleGroup
+      .append("text")
+      .attr("x", genderLineChartWidth / 2)
+      .attr("y", -20) // Position it above the chart
+      .attr("font-size", "14px")
+      .attr("text-anchor", "middle")
+      .attr("class", "subtitle-text");
+
+    // Function to update subtitle when select a line
+    function updateSubtitle(text, color) {
+      genderLineChartG
+        .select(".subtitle-text")
+        .text(text)
+        .attr("fill", color || "grey");
+    }
     highSchool.on("click", () => {
       genderLineChartG.selectAll("path").remove();
       setting();
-      genderLineChartG
+      updateSubtitle("High School or below", "steelblue");
+      // Create female line with animation
+      const femalePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
-        .attr("d", lineGeneratorGirl(highSchoolSingleRate))
-        .transition()
-        .duration(1500);
+        .attr("d", lineGeneratorGirl(highSchoolSingleRate));
 
-      genderLineChartG
+      // Create male line with animation
+      const malePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("d", lineGeneratorBoy(highSchoolSingleRate));
+
+      // Get path lengths
+      const femalePathLength = femalePath.node().getTotalLength();
+      const malePathLength = malePath.node().getTotalLength();
+
+      // Animate female line
+      femalePath
+        .attr("stroke-dashoffset", femalePathLength)
+        .attr("stroke-dasharray", femalePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+
+      malePath
+        .attr("stroke-dashoffset", malePathLength)
+        .attr("stroke-dasharray", malePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
     });
     bachelor.on("click", () => {
       genderLineChartG.selectAll("path").remove();
       setting();
-      genderLineChartG
+      updateSubtitle("Colleges", "green");
+
+      const femalePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
         .attr("d", lineGeneratorGirl(bachelorSingleRate));
-      genderLineChartG
+
+      const malePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("d", lineGeneratorBoy(bachelorSingleRate));
+
+      const femalePathLength = femalePath.node().getTotalLength();
+      const malePathLength = malePath.node().getTotalLength();
+
+      femalePath
+        .attr("stroke-dashoffset", femalePathLength)
+        .attr("stroke-dasharray", femalePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+
+      malePath
+        .attr("stroke-dashoffset", malePathLength)
+        .attr("stroke-dasharray", malePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
     });
     master.on("click", () => {
       genderLineChartG.selectAll("path").remove();
       setting();
-      genderLineChartG
+      updateSubtitle("Master's or Above", "brown");
+
+      const femalePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
         .attr("d", lineGeneratorGirl(masterSingleRate));
-      genderLineChartG
+
+      const malePath = genderLineChartG
         .append("path")
-        .transition()
-        .duration(1500)
         .attr("fill", "none")
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("d", lineGeneratorBoy(masterSingleRate));
+
+      const femalePathLength = femalePath.node().getTotalLength();
+      const malePathLength = malePath.node().getTotalLength();
+
+      femalePath
+        .attr("stroke-dashoffset", femalePathLength)
+        .attr("stroke-dasharray", femalePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
+
+      malePath
+        .attr("stroke-dashoffset", malePathLength)
+        .attr("stroke-dasharray", malePathLength)
+        .transition()
+        .duration(500)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
     });
     genderLineChartG
       .append("text")
